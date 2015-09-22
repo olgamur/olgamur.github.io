@@ -1,0 +1,62 @@
+@font-face {
+    font-family: Marck Script; 
+    src: url(../fonts/Marck_Script/MarckScript-Regular.ttf); 
+}
+
+html, body {
+    background: #CD661D;
+    margin: 0;
+    padding: 0;
+/*    cursor: url(../images/bee.ani)*/
+}
+
+h1 {
+    color: #FDC211;
+    font-family: 'Marck Script';
+    text-align: center;
+    font-size: 5em;
+    margin: 0;
+}
+
+#field {
+    background: #CD661D;
+    /*background: blue;*/
+    margin: 0 auto;
+}
+
+table {
+    /*margin-top: 150px;*/
+}
+
+.cell {
+    transition: all 0.7s linear;
+    -webkit-transition: all 0.7s linear; /** Chrome & Safari **/
+    -moz-transition: all 0.7s linear; /** Firefox **/
+    -o-transition: all 0.7s linear; /** Opera **/
+}
+
+.cell:hover {
+    cursor: pointer;
+}
+
+.empty {
+    z-index: -100;
+}
+
+.text {
+    font-size: 4em;
+    font-style: italic;
+    font-family: 'Marck Script', cursive;
+    fill: #e99605;
+    text-align: center;
+    dominant-baseline: middle;
+    alignment-baseline: central;
+    pointer-events: auto;
+    text-anchor:middle;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.text:hover {
+    cursor: pointer;
+}
