@@ -16,6 +16,26 @@ h1 {
     text-align: center;
     font-size: 5em;
     margin: 0;
+/*    background: url(../images/bee_3.gif) no-repeat 20%;*/
+}
+
+.bee {
+    position: relative;
+    top: -30px;
+}
+
+#bee1 {
+    left: 5px;
+   -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+        transform: scaleX(-1);
+        filter: FlipH;
+    -ms-filter: "FlipH";
+}
+
+.bee {
+
 }
 
 #field {
