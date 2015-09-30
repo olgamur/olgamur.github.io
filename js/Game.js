@@ -211,7 +211,7 @@ Game.prototype.showModal = function () {
         button_ok = document.getElementById("button-ok"),
         game = this;
     overlay.className += " active";
-    var cell = this.buildCell(0, 0, 0, 70, "OK");
+    var cell = this.buildCell(0, 0, 0, 70, "ок");
     cell.setAttribute("class", "");
     button_ok.appendChild(cell);
     button_ok.addEventListener('click', function(evt) {
