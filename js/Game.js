@@ -218,8 +218,10 @@ Game.prototype.showModal = function () {
         game.closeModal();
     });
     document.addEventListener('keydown', function(evt) {
-        if(evt.keyIdentifier == "Enter")
+        if(evt.keyIdentifier == "Enter") {
+            button_ok.setAttribute("filter", "url(#hueRotate)");
             game.closeModal();
+        }
     });
 }
 
