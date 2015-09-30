@@ -4,19 +4,46 @@
 }
 
 html, body {
-    background: #CD661D;
+    /*background: #CD661D;*/
+    /*background: url(../images/honey-292133_1920.jpg);*/
+    font-family: 'Marck Script';
+    background: black;
+    background-size: cover;
+    background-position: right, bottom;
     margin: 0;
     padding: 0;
-/*    cursor: url(../images/bee.ani)*/
+    min-height: 100%;
+    cursor: url(../images/bee.ani)
 }
 
 h1 {
     color: #FDC211;
-    font-family: 'Marck Script';
+/*    font-family: 'Marck Script';*/
     text-align: center;
     font-size: 5em;
     margin: 0;
-/*    background: url(../images/bee_3.gif) no-repeat 20%;*/
+}
+
+h3 {
+    font-size: 2em;
+    margin: 0;
+    color: #78D2FF;
+}
+
+h4 {
+    color: black;
+    font-size: 3.5em;
+}
+
+table {
+    color: #FDC211;
+    text-align: center;
+}
+
+#right-column {
+    width: 40%;
+    padding: 40px;
+    font-size: 20px;
 }
 
 .bee {
@@ -29,42 +56,35 @@ h1 {
    -moz-transform: scaleX(-1);
     -o-transform: scaleX(-1);
     -webkit-transform: scaleX(-1);
-        transform: scaleX(-1);
-        filter: FlipH;
+    transform: scaleX(-1);
+    filter: FlipH;
     -ms-filter: "FlipH";
-}
-
-.bee {
-
 }
 
 #field {
     background: #CD661D;
-    /*background: blue;*/
+    background: transparent;
     margin: 0 auto;
 }
 
 table {
-    /*margin-top: 150px;*/
+    margin-top: 20px;
 }
 
 .cell {
-    transition: all 0.7s linear;
-    -webkit-transition: all 0.7s linear; /** Chrome & Safari **/
-    -moz-transition: all 0.7s linear; /** Firefox **/
-    -o-transition: all 0.7s linear; /** Opera **/
+    transition: all 0.5s linear;
+    -webkit-transition: all 0.5s linear; 
+    -moz-transition: all 0.5s linear; 
+    -o-transition: all 0.5s linear;
 }
 
 .cell:hover {
     cursor: pointer;
 }
 
-.empty {
-    z-index: -100;
-}
-
 .text {
     font-size: 4em;
+    /*font-size: 50px;*/
     font-style: italic;
     font-family: 'Marck Script', cursive;
     fill: #e99605;
@@ -73,10 +93,64 @@ table {
     alignment-baseline: central;
     pointer-events: auto;
     text-anchor:middle;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
 .text:hover {
+    cursor: pointer;
+}
+
+#overlay {
+     visibility: hidden;
+     opacity: 0;
+     position: absolute;
+     left: 0px;
+     top: 0px;
+     width:100%;
+     height:100%;
+     text-align:center;
+     z-index: 1000;
+     transition: all linear 0.5s;
+}
+
+#overlay div {
+    width:300px;
+    height:400px;
+    width: 300px;
+    height: 400px;
+    background:#f00;
+    position:absolute;
+    top:50%;
+    left:50%;
+    border: 12px solid #FDBF0F;
+    border-radius: 10px;
+    background: #DD9C00;
+    /*font-size: 4em;*/
+    margin-top: -200px;
+    margin-left: -150px;
+
+}
+
+#overlay div p {
+    font-size: 4em;
+}
+
+#overlay.active {
+    visibility: visible;
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+#modal p {
+    margin: 30px;
+}
+
+#button-ok {
+    /*width: 80%;
+    height: 3.5em;*/
+    border: 2px solid transparent;
+    border-radius: 6px;
+}
+
+#button-ok:hover {
     cursor: pointer;
 }

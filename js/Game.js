@@ -3,10 +3,13 @@ Array.range = function (start, count) {
         count = start;
         start = 0;
     }
+
     var a = new Array();
+
     for ( var i = start; i < start + count; i++) {
         a.push(i);
     }
+
     return a;
 }
 
@@ -24,6 +27,7 @@ var Cell = {
 function Game () {
     this.matrix = {};
     this.empty_cell = {};
+    this.moving = false;
 }
 
 Game.prototype.start = function () {
@@ -34,6 +38,7 @@ Game.prototype.start = function () {
 Game.prototype.generateGameMatrix = function () {
     var matrix = new Array();
     var values = Array.range(0, 16);
+
     for ( var i = 0; i < 4; i++) {
         var vect = new Array();
         for ( var j = 0; j < 4; j++) {
@@ -42,166 +47,147 @@ Game.prototype.generateGameMatrix = function () {
         }
         matrix.push(vect);
     }
+
     return matrix;
 }
 
+Game.prototype.buildCell = function (i, j, x, y, val) {
+    var svgelb = new SVGElementBuilder();
+
+    var g = svgelb.buildGroup(i, j, x, y);
+    var polygon = svgelb.buildPolygon(0, 0);
+    var text = svgelb.buildText(0, 0);
+    var textNode = document.createTextNode(val);
+
+    //добавляем все элементы ячейки на страницу              
+    text.appendChild(textNode);
+    g.appendChild(polygon);
+    g.appendChild(text);
+
+    return g;
+}
+
 Game.prototype.drawCells = function () {
-    var g, polygon, points, text, textNode, val;
-    var arr = [];
-    var svgns = "http://www.w3.org/2000/svg";
-    var field = document.getElementById("field");
-    var xoffset = (Cell.width - Cell.side) / 2;
-    
-    var count = -1;
+    // var g, polygon, points, text, textNode, val;
+    var g, 
+        val,
+        arr = [], 
+        field = document.getElementById("field"), 
+        xoffset = (Cell.width - Cell.side) / 2;
+    // var svgelb = new SVGElementBuilder();
     
     for(var i = 0; i<4; i++) {
         for(var j=0; j<4; j++) {
-            count += 1;
-
-            g = document.createElementNS(svgns, "g");
-            g.setAttribute("id", "cell_" + count);
-            //запоминаем индексы выбранной ячейки
-            g.setAttribute("i", i);
-            g.setAttribute("j", j);
-            g.setAttribute("class", "cell");
-
-            //вычисляем и запоминаем координаты левого верхнего угла 
-            //нового шестиугольника внутри ячейки
-            x_hex = 0;
-            y_hex = 0;
-
-            //вычисляем и запоминаем координаты левого верхнего угла самой ячейки
-            x_cell = j*(Cell.width-xoffset) + (Cell.width-xoffset)*i;
-            y_cell = field.clientHeight / 2 - j * Cell.h + i * Cell.h;
-
-            g.setAttribute("x", x_cell);
-            g.setAttribute("y", y_cell);
-
-            // g.setAttribute("transform", "translate(" + x_cell + "," + y_cell + ")");
-            g.setAttribute("style", "transform: translate(" + 
-                x_cell + "px," + y_cell + "px)");
-
-            //массив координат углов шестиугольника
-            points = [];
-            points.push([x_hex, y_hex]);
-            points.push([x_hex + Cell.xOffset, y_hex - Cell.h]);
-            points.push([x_hex + Cell.xOffset + Cell.width/2, y_hex - Cell.h]);
-            points.push([x_hex + Cell.width, y_hex]);
-            points.push([x_hex + Cell.xOffset + Cell.width/2, y_hex + Cell.h]);
-            points.push([x_hex + Cell.xOffset, y_hex + Cell.h]);
-
-            //создание шестиугольника
-            polygon = document.createElementNS(svgns, "polygon");
-            polygon.setAttribute("points", points);
-            polygon.setAttribute("fill", "url(#cell)");
-
-            //создаем объект текста с номером ячейки
-            text = document.createElementNS(svgns, 'text');
-            text.setAttribute("x", x_hex + 70);
-            text.setAttribute("y", y_hex);
-
             val = this.matrix[i][j] == 0 ? "" : this.matrix[i][j];
+            //вычисляем и запоминаем координаты левого верхнего угла ячейки
+            x = j*(Cell.width-xoffset) + (Cell.width-xoffset)*i;
+            y = field.clientHeight / 2 - j * Cell.h + i * Cell.h;
 
-            textNode = document.createTextNode(val);
-            text.appendChild(textNode);
-            text.setAttribute("class", "text");
+            g = this.buildCell(i, j, x, y, val);
 
-            //меняем цвет при наведении мыши на ячейку
-            (function(element){
-                element.addEventListener('mouseover', function(evt) {
-                    element.setAttribute("filter", "url(#hueRotate)");
-                });
-            })(g);
-
-            //возвращаем обычный вид ячейки при потере фокуса
-            (function(element){
-                element.addEventListener('mouseout', function(evt) {
-                    element.removeAttribute("filter");
-                });
-            })(g);
-
-            //обрабатываем событие щелчок по ячейке
-            (function(element, game){
-                element.addEventListener('click', function(evt) {
-
-                    //индексы выбранной ячейки
-                    var cell_i = parseInt(element.getAttribute("i"));
-                    var cell_j = parseInt(element.getAttribute("j"));
-                    var number = game.matrix[cell_i][cell_j];
-
-                    var empty_cell_i = parseInt(game.empty_cell.getAttribute("i"));
-                    var empty_cell_j = parseInt(game.empty_cell.getAttribute("j"));
-                    
-                    //индексы соседних ячеек
-                    var nearby_indexes = [{i : cell_i - 1, j : cell_j},
-                        {i : cell_i - 1, j : cell_j + 1},
-                        {i : cell_i, j : cell_j + 1},
-                        {i : cell_i + 1, j: cell_j},
-                        {i : cell_i + 1, j : cell_j - 1},
-                        {i : cell_i, j : cell_j - 1}];
-
-                    //среди соседних ячеек ищем пустую
-                    for (var k in nearby_indexes) {
-                        if((nearby_indexes[k].i == 
-                                parseInt(game.empty_cell.getAttribute("i"))) &&
-                                    nearby_indexes[k].j == 
-                                        parseInt(game.empty_cell.getAttribute("j"))) {
-                            game.matrix[cell_i][cell_j] = [0];
-                            game.matrix[empty_cell_i][empty_cell_j] = number;
-                            game.animate(element);
-                            if(game.isWin())
-                                //отложить на время анимации, чтобы последняя фишка встала на место
-                                alert("YOU WIN!!!!!");
-                            break;
-                        }
-                    }
-                });
-            })(g, this);
-
-            //добавляем все элементы ячейки на страницу
-            g.appendChild(polygon);
-            g.appendChild(text);
+            this.setEventListeners(g);
 
             //запоминаем пустую ячейку
             if(val == "") {
                 this.empty_cell = g;
-                this.empty_cell.setAttribute("class", this.empty_cell.getAttribute("class") + " empty");
                 arr.unshift(g);
             }
             else
                 arr.push(g);
         }
     }
+
     for(var i in arr) {
         field.appendChild(arr[i]);
     }
 }
 
+Game.prototype.getNearbyIndexes = function(cell_i, cell_j) {
+    var nearby_indexes =
+        [{
+            i: cell_i - 1, //ячейка слева
+            j: cell_j
+        }, {
+            i: cell_i - 1, //ячейка слева и снизу
+            j: cell_j + 1
+        }, {
+            i: cell_i,     //ячейка снизу
+            j: cell_j + 1
+        }, {
+            i: cell_i + 1, //ячейка справа
+            j: cell_j
+        }, {
+            i: cell_i + 1, //ячейка слева и сверху
+            j: cell_j - 1
+        }, {
+            i: cell_i,     //ячейка сверху
+            j: cell_j - 1
+        }];
+
+    return nearby_indexes;
+}
+
+Game.prototype.setEventListeners = function(g) {
+    (function(element, game){
+        element.addEventListener('click', function(evt) {
+            game.move(element);
+        });
+    })(g, this);
+}
+
+Game.prototype.move = function (cell) {
+    //индексы выбранной ячейки
+    var cell_i = parseInt(cell.getAttribute("i")),
+        cell_j = parseInt(cell.getAttribute("j")),
+        empty_cell_i = parseInt(this.empty_cell.getAttribute("i")),
+        empty_cell_j = parseInt(this.empty_cell.getAttribute("j"));
+
+    var number = this.matrix[cell_i][cell_j];
+    
+    //индексы соседних ячеек
+    var nearby_indexes = this.getNearbyIndexes(cell_i, cell_j);
+
+  //среди соседних ячеек ищем пустую
+    for (var k in nearby_indexes) {
+        if((nearby_indexes[k].i == empty_cell_i) &&
+            (nearby_indexes[k].j == empty_cell_j)) {
+                this.matrix[cell_i][cell_j] = [0];
+                this.matrix[empty_cell_i][empty_cell_j] = number;
+                this.animate(cell);
+                setInterval(function(game) {
+                    // if(game.isWin())
+                    if(1)
+                        game.showModal();
+                }(this), 8000);
+                break;
+        }
+    }
+}
+
 Game.prototype.animate = function (cell) {
-        var svgns = "http://www.w3.org/2000/svg";
-    var temp = {};
-    temp.x = cell.getAttribute("x");
-    temp.y = cell.getAttribute("y");
-    temp.i = cell.getAttribute("i");
-    temp.j = cell.getAttribute("j");
+    var temp = new SVGElementBuilder().buildGroup(0, 0, 0, 0);
+
+    this.copyElementAttributes(cell, temp);
 
     cell.setAttribute("style", "transform: translate(" + 
         this.empty_cell.getAttribute("x") + "px," + 
-        this.empty_cell.getAttribute("y") + "px)");
+            this.empty_cell.getAttribute("y") + "px)");
 
     this.empty_cell.setAttribute("style", "transform: translate(" + 
-        temp.x + "px," + 
-        temp.y + "px)");
+        temp.getAttribute("x") + "px," + temp.getAttribute("y") + "px)");
 
-    cell.setAttribute("x", this.empty_cell.getAttribute("x"));
-    cell.setAttribute("y", this.empty_cell.getAttribute("y"));
-    cell.setAttribute("i", this.empty_cell.getAttribute("i"));
-    cell.setAttribute("j", this.empty_cell.getAttribute("j"));
+    this.copyElementAttributes(this.empty_cell, cell);
+    this.copyElementAttributes(temp, this.empty_cell);
+}
 
-    this.empty_cell.setAttribute("x", temp.x);
-    this.empty_cell.setAttribute("y", temp.y);
-    this.empty_cell.setAttribute("i", temp.i);
-    this.empty_cell.setAttribute("j", temp.j);
+Game.prototype.copyElementAttributes = function (src, dst) {
+    for(var i in src.attributes) {
+        if((src.attributes[i].name == "x") || (src.attributes[i].name == "y") || 
+            (src.attributes[i].name == "i") || (src.attributes[i].name == "j")) {
+                dst.setAttribute(src.attributes[i].name, 
+                    src.getAttribute(src.attributes[i].name));
+        }
+    }
 }
 
 Game.prototype.isWin = function () {
@@ -220,8 +206,30 @@ Game.prototype.isWin = function () {
     return win;
 }
 
-window.onload = function () {
-    // document.body.style.cursor = "http://wiki-devel.sugarlabs.org/images/e/e2/Arrow.cur";
+Game.prototype.showModal = function () {
+    var overlay = document.getElementById("overlay"),
+        button_ok = document.getElementById("button-ok"),
+        game = this;
+    overlay.className += " active";
+    var cell = this.buildCell(0, 0, 0, 70, "OK");
+    cell.setAttribute("class", "");
+    button_ok.appendChild(cell);
+    button_ok.addEventListener('click', function(evt) {
+        game.closeModal();
+    });
+    document.addEventListener('keydown', function(evt) {
+        if(evt.keyIdentifier == "Enter")
+            game.closeModal();
+    });
+}
+
+Game.prototype.closeModal = function () {
+    var overlay = document.getElementById("overlay");
+    overlay.className = "overlay";
+    document.removeEventListener('keydown');
+}
+
+window.onload = function () {;
     var game = new Game();
     game.start();
 }
