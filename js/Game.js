@@ -37,7 +37,7 @@ Game.prototype.start = function () {
     this.matrix = this.generateGameMatrix();
     this.drawCells();
     this.secs = 0;
-    document.getElementById('timer').innerHTML = '0 : 0';
+    document.getElementById('timer').innerHTML = '00 : 00';
     this.counter = setInterval(function() {
         game.countTime();
     }, 1000); 
@@ -211,12 +211,14 @@ Game.prototype.countTime = function () {
 }
 
 Game.prototype.formatTime = function (secs) {
-    var h, min, sec, temp, str;
+    var h, min, sec, temp, str, s_min, s_sec;
     h = Math.floor(secs / 3600);
     temp = secs - 3600 * h;
     min = Math.floor(temp / 60);
+    s_min = min < 10 ? '0' + min : min;
     sec = temp % 60;
-    str = h ? h + " : " + min + " : " + sec : min + " : " + sec;
+    s_sec = sec < 10 ? '0' + sec : sec;
+    str = h ? h + " : " + s_min + " : " + s_sec : s_min + " : " + s_sec;
     return str;
 }
 
