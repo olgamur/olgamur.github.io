@@ -42,8 +42,11 @@ table {
 
 #right-column {
     width: 40%;
-    padding: 40px;
     font-size: 20px;
+    vertical-align: baseline;
+    text-align: center;
+    /*padding-top: 10px;*/
+    padding-right: 40px;
 }
 
 .bee {
@@ -153,4 +156,28 @@ table {
 
 #button-ok:hover {
     cursor: pointer;
+}
+
+#button-new {
+    width: 300px;
+    height: 50px;
+    /*background: #78D2FF;*/
+    margin: 0 auto;
+    font-size: 2em;
+    border: 10px solid #FDBF0F;
+    border-radius: 6px;
+    background: #DD9C00;
+    color: black;
+    /*transition: all linear 0.5s;*/
+}
+
+#button-new:hover {
+    background: #2AAFDE;
+    border: 10px solid #65CDFF;
+    cursor: pointer;
+}
+
+#timer {
+   font-size: 2em;
+   font-weight: bold;
 }

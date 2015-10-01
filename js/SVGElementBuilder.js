@@ -12,6 +12,19 @@ SVGElementBuilder.prototype.create = function(name, attrs) {
     return element;
 }
 
+SVGElementBuilder.prototype.buildCell = function (i, j, x, y, val) {
+    var g = this.buildGroup(i, j, x, y);
+    var polygon = this.buildPolygon(0, 0);
+    var text = this.buildText(0, 0);
+    var textNode = document.createTextNode(val);
+           
+    text.appendChild(textNode);
+    g.appendChild(polygon);
+    g.appendChild(text);
+
+    return g;
+}
+
 SVGElementBuilder.prototype.buildPolygon = function(x, y) {
     var points = [];
 

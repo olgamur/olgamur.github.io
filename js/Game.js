@@ -28,11 +28,19 @@ function Game () {
     this.matrix = {};
     this.empty_cell = {};
     this.moving = false;
+    this.counter;
 }
 
 Game.prototype.start = function () {
+    console.log(this)
+    var game = this;
     this.matrix = this.generateGameMatrix();
     this.drawCells();
+    this.secs = 0;
+    document.getElementById('timer').innerHTML = '0 : 0';
+    this.counter = setInterval(function() {
+        game.countTime();
+    }, 1000); 
 }
 
 Game.prototype.generateGameMatrix = function () {
@@ -51,43 +59,26 @@ Game.prototype.generateGameMatrix = function () {
     return matrix;
 }
 
-Game.prototype.buildCell = function (i, j, x, y, val) {
-    var svgelb = new SVGElementBuilder();
-
-    var g = svgelb.buildGroup(i, j, x, y);
-    var polygon = svgelb.buildPolygon(0, 0);
-    var text = svgelb.buildText(0, 0);
-    var textNode = document.createTextNode(val);
-
-    //добавляем все элементы ячейки на страницу              
-    text.appendChild(textNode);
-    g.appendChild(polygon);
-    g.appendChild(text);
-
-    return g;
-}
-
 Game.prototype.drawCells = function () {
-    // var g, polygon, points, text, textNode, val;
     var g, 
         val,
         arr = [], 
         field = document.getElementById("field"), 
-        xoffset = (Cell.width - Cell.side) / 2;
-    // var svgelb = new SVGElementBuilder();
-    
+        xoffset = (Cell.width - Cell.side) / 2,
+        svgelb = new SVGElementBuilder();
+
+    this.clearField();
+
     for(var i = 0; i<4; i++) {
         for(var j=0; j<4; j++) {
             val = this.matrix[i][j] == 0 ? "" : this.matrix[i][j];
-            //вычисляем и запоминаем координаты левого верхнего угла ячейки
             x = j*(Cell.width-xoffset) + (Cell.width-xoffset)*i;
             y = field.clientHeight / 2 - j * Cell.h + i * Cell.h;
 
-            g = this.buildCell(i, j, x, y, val);
+            g = svgelb.buildCell(i, j, x, y, val);
 
             this.setEventListeners(g);
 
-            //запоминаем пустую ячейку
             if(val == "") {
                 this.empty_cell = g;
                 arr.unshift(g);
@@ -99,6 +90,15 @@ Game.prototype.drawCells = function () {
 
     for(var i in arr) {
         field.appendChild(arr[i]);
+    }
+}
+
+Game.prototype.clearField = function () {
+    var field = document.getElementById('field');
+    var l = field.childNodes.length;
+    while(l - 3) {
+        l -= 1;
+        field.removeChild(field.childNodes[l-1]);
     }
 }
 
@@ -155,9 +155,8 @@ Game.prototype.move = function (cell) {
                 this.matrix[empty_cell_i][empty_cell_j] = number;
                 this.animate(cell);
                 setInterval(function(game) {
-                    // if(game.isWin())
-                    if(1)
-                        game.showModal();
+                    if(game.isWin())
+                        showModal(game.counter);
                 }(this), 8000);
                 break;
         }
@@ -206,34 +205,63 @@ Game.prototype.isWin = function () {
     return win;
 }
 
-Game.prototype.showModal = function () {
+Game.prototype.countTime = function () {
+    this.secs += 1;
+    document.getElementById('timer').innerHTML = this.formatTime(this.secs);
+}
+
+Game.prototype.formatTime = function (secs) {
+    var h, min, sec, temp, str;
+    h = Math.floor(secs / 3600);
+    temp = secs - 3600 * h;
+    min = Math.floor(temp / 60);
+    sec = temp % 60;
+    str = h ? h + " : " + min + " : " + sec : min + " : " + sec;
+    return str;
+}
+
+showModal = function (counter) {
     var overlay = document.getElementById("overlay"),
-        button_ok = document.getElementById("button-ok"),
-        game = this;
-    overlay.className += " active";
-    button_ok.removeAttribute("filter");
-    var cell = this.buildCell(0, 0, 0, 70, "ок");
+        button_ok = document.getElementById("button-ok");
+    overlay.className += " active"; 
+    button_ok.removeAttribute("filter");  
+    clearInterval(counter);
+}
+
+closeModal = function () {
+    var overlay = document.getElementById("overlay");
+    overlay.className = "overlay";
+    document.removeEventListener('keydown');
+    newGame();
+}
+
+setOkButton = function (id) {
+    var button_ok = document.getElementById(id);
+    var svgelb = new SVGElementBuilder();
+    var cell = svgelb.buildCell(0, 0, 0, 70, "ок");
     cell.setAttribute("class", "");
     button_ok.appendChild(cell);
-    button_ok.addEventListener('click', function(evt) {
-        game.closeModal();
-    });
+
     document.addEventListener('keydown', function(evt) {
         if(evt.keyIdentifier == "Enter") {
             button_ok.setAttribute("filter", "url(#hueRotate)");
-            game.closeModal();
+            closeModal();
         }
     });
 }
 
-Game.prototype.closeModal = function () {
-    var overlay = document.getElementById("overlay");
-    overlay.className = "overlay";
-    document.removeEventListener('keydown');
+var cur_game;
+
+window.onload = function () {
+    setOkButton("button-ok");
+    newGame();
+    console.log("onload")
 }
 
-window.onload = function () {;
-    var game = new Game();
-    game.start();
+function newGame () {
+    if(cur_game)
+        clearInterval(cur_game.counter);
+    cur_game = new Game();
+    cur_game.start();
 }
 
